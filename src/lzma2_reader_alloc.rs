@@ -12,12 +12,12 @@ use crate::range_dec::RangeSource;
 /// Decompresses a raw LZMA2 stream (no XZ headers).
 /// # Examples
 /// ```
-/// use Read;
+/// use std::io::Read;
 /// use lzma_rust::LZMA2Reader;
 /// use lzma_rust::LZMA2Options;
 /// let compressed = [1, 0, 12, 72, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 33, 0];
-/// let mut reader = LZMA2Reader::new(compressed, LZMA2Options::DICT_SIZE_DEFAULT, None);
-/// let mut decompressed = crate::Vec::new();
+/// let mut reader = LZMA2Reader::new(compressed.as_slice(), LZMA2Options::DICT_SIZE_DEFAULT, None);
+/// let mut decompressed = Vec::new();
 /// reader.read_to_end(&mut decompressed);
 /// assert_eq!(&decompressed[..], b"Hello, world!");
 ///
@@ -251,7 +251,7 @@ impl<R: Read> Read for LZMA2Reader<R> {
                 {
                     let error = e;
                     self.error = Some((error.kind(), error.to_string().to_string()));
-                    return error!(error.kind(), error.to_string());
+                    error!(error.kind(), error.to_string())
                 }
                 #[cfg(feature = "no_std")]
                 {

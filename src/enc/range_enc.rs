@@ -92,7 +92,7 @@ impl<W: Write> RangeEncoder<W> {
             self.range = bound;
             *prob += ((BIT_MODEL_TOTAL.wrapping_sub(*prob as u64)) >> MOVE_BITS) as u16;
         } else {
-            self.low += bound as u64;
+            self.low += bound;
             self.range = self.range.wrapping_sub(bound);
             *prob -= (*prob) >> (MOVE_BITS as u16);
         }
@@ -154,7 +154,7 @@ impl<W: Write> RangeEncoder<W> {
             self.range >>= 1;
             count -= 1;
             let m = 0u64.wrapping_sub((value >> count) & 1);
-            self.low += (self.range & m) as u64;
+            self.low += self.range & m;
 
             if self.range & TOP_MASK == 0 {
                 self.range <<= SHIFT_BITS;

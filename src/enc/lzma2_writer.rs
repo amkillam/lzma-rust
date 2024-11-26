@@ -141,10 +141,11 @@ pub fn get_extra_size_before(dict_size: u64) -> u64 {
 /// # Examples
 /// ```
 /// use std::io::Write;
-/// use lzma_rust::enc::lzma2_writer::{LZMA2Options, LZMA2Writer};
-/// let mut writer = LZMA2Writer::new(crate::Vec::new(), &LZMA2Options::default());
-///    writer.write_all(b"hello world").unwrap();
-///    let compressed = writer.finish().unwrap();
+/// use lzma_rust::enc::{LZMA2Options, LZMA2Writer};
+/// use lzma_rust::CountingWriter;
+/// let mut writer = LZMA2Writer::new(CountingWriter::new(Vec::new()), &LZMA2Options::default());
+/// writer.write_all(b"hello world").unwrap();
+/// let compressed = writer.finish().unwrap();
 ///
 /// ```
 pub struct LZMA2Writer<W: Write> {
@@ -327,7 +328,7 @@ impl<W: Write> Write for LZMA2Writer<W> {
         let mut len = buf.len();
         if len == 0 && !self.finished {
             self.finish()?;
-            self.inner.write(buf)?;
+            self.inner.write_all(buf)?;
             return Ok(0);
         }
         if self.finished {

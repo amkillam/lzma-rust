@@ -39,9 +39,9 @@ fn get_dict_size(dict_size: u64) -> Result<u64> {
 /// use std::io::Read;
 /// use lzma_rust::LZMAReader;
 /// let compressed = [93, 0, 0, 128, 0, 255, 255, 255, 255, 255, 255, 255, 255, 0, 36, 25, 73, 152, 111, 22, 2, 140, 232, 230, 91, 177, 71, 198, 206, 183, 99, 255, 255, 60, 172, 0, 0];
-/// let mut reader = LZMAReader::new(&compressed[..]).unwrap();
+/// let mut reader = LZMAReader::new(&compressed[..], 0, 0, 0, 0, 0, None).unwrap();
 /// let mut buf = [0; 1024];
-/// let mut out = crate::Vec::new();
+/// let mut out = Vec::new();
 /// loop {
 ///    let n = reader.read(&mut buf).unwrap();
 ///   if n == 0 {
@@ -133,7 +133,7 @@ impl<R: Read> LZMAReader<R> {
         }
         let mut dict_size = get_dict_size(dict_size)?;
         if uncomp_size <= u64::MAX / 2 && dict_size as u64 > uncomp_size {
-            dict_size = get_dict_size(uncomp_size as u64)?;
+            dict_size = get_dict_size(uncomp_size)?;
         }
         let rc = RangeDecoder::new_stream(reader);
         let rc = match rc {
@@ -247,8 +247,8 @@ impl<R: Read> LZMAReader<R> {
         let mut off = 0u64;
         while len > 0 {
             let mut copy_size_max = len;
-            if self.remaining_size <= u64::MAX / 2 && (self.remaining_size as u64) < len {
-                copy_size_max = self.remaining_size as u64;
+            if self.remaining_size <= u64::MAX / 2 && self.remaining_size < len {
+                copy_size_max = self.remaining_size;
             }
             self.lz.set_limit(copy_size_max as usize);
 
@@ -268,7 +268,7 @@ impl<R: Read> LZMAReader<R> {
             len -= copied_size;
             size += copied_size;
             if self.remaining_size <= u64::MAX / 2 {
-                self.remaining_size -= copied_size as u64;
+                self.remaining_size -= copied_size;
                 if self.remaining_size == 0 {
                     self.end_reached = true;
                 }
