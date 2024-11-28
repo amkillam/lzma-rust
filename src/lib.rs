@@ -1,5 +1,4 @@
 #![cfg_attr(feature = "no_std", no_std)]
-#![feature(const_mut_refs)]
 #![cfg_attr(
     all(feature = "no_std", feature = "alloc"),
     feature(stmt_expr_attributes),
